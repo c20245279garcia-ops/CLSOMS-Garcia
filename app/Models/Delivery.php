@@ -8,14 +8,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Delivery extends Model
 {
     protected $table = 'deliveries';
-    protected $primaryKey = 'delivery_id';
 
-    protected $fillable = ['order_id', 'delivery_date'];
+    protected $fillable = ['laundry_order_id', 'delivery_date', 'delivery_status', 'delivered_at'];
 
-    protected $casts = ['delivery_date' => 'date'];
+    protected $casts = [
+        'delivery_date' => 'date',
+        'delivered_at' => 'datetime',
+    ];
 
     public function order(): BelongsTo
     {
-        return $this->belongsTo(LaundryOrder::class, 'order_id', 'order_id');
+        return $this->belongsTo(LaundryOrder::class, 'laundry_order_id', 'id');
     }
 }

@@ -2,6 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\LaundryOrderController;
+
+Route::get('/create-order', [LaundryOrderController::class, 'create']);
+
+// Route to handle the form submission
+Route::post('/orders', [LaundryOrderController::class, 'store'])->name('orders.store');
+Route::get('/orders-list', [LaundryOrderController::class, 'index'])->name('orders.index');
 
 Route::get('/', function () {
     return Inertia::render('welcome');

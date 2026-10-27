@@ -3,44 +3,47 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLaundryOrderRequest;
-use App\Http\Requests\UpdateLaundryOrderRequest;
+use App\Services\LaundryOrderService;
 use App\Models\LaundryOrder;
 use App\Models\ServiceType;
-use App\Services\DomainService;
+use Inertia\Inertia;
 
 class LaundryOrderController extends Controller
 {
-    // Inject the Domain Service
-    public function __construct(private DomainService $service) {}
+    protected $orderService;
 
-    public function index()
+    public function __construct(LaundryOrderService $orderService)
     {
-        // Eager load relationships and paginate
-        $orders = LaundryOrder::with(['customer', 'orderDetails.serviceType', 'delivery'])
-                              ->latest('order_id')
-                              ->paginate(10);
-        return response()->json($orders);
-    }
-
-    public function create()
-    {
-        // Return necessary dependency data for creation
-        return response()->json([
-            'service_types' => ServiceType::all(),
-        ]);
+        $this->orderService = $orderService;
     }
 
     public function store(StoreLaundryOrderRequest $request)
     {
-        // Validation passes, delegate to Service
-        $order = $this->service->createLaundryOrder($request->validated());
-        return response()->json($order, 201);
+        // Pass the validated data to the Service
+        $this->orderService->processNewOrder($request->validated());
+
+        // Redirect back with a success message
+        return redirect()->back()->with('success', 'Laundry order created successfully!');
     }
 
-    public function update(UpdateLaundryOrderRequest $request, $id)
+    public function create()
     {
-        // Validation passes, delegate to Service
-        $order = $this->service->updateLaundryOrder((int) $id, $request->validated());
-        return response()->json($order);
+        return Inertia::render('laundry/create', [
+            'expressFee' => LaundryOrderService::EXPRESS_SERVICE_FEE,
+            'serviceTypes' => ServiceType::query()
+                ->orderBy('name')
+                ->get(['id', 'name', 'price_per_kg']),
+        ]);
+    }
+
+    public function index()
+    {
+        // Fetch all orders with their customer and delivery details
+        $orders = LaundryOrder::with(['customer', 'delivery'])->latest()->get();
+
+        // Return the React page and pass the data
+        return Inertia::render('laundry/Index', [
+            'orders' => $orders
+        ]);
     }
 }

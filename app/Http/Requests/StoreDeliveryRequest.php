@@ -14,15 +14,15 @@ class StoreDeliveryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'order_id'      => ['required', 'exists:laundry_orders,order_id', 'unique:deliveries,order_id'],
-            'delivery_date' => ['required', 'date', 'after_or_equal:today'],
+            'laundry_order_id' => ['required', 'exists:laundry_orders,id', 'unique:deliveries,laundry_order_id'],
+            'delivery_date' => ['nullable', 'date', 'after_or_equal:today'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'order_id.unique' => 'This order already has a delivery record.',
+            'laundry_order_id.unique' => 'This order already has a delivery record.',
             'delivery_date.after_or_equal' => 'Delivery date must not be in the past.',
         ];
     }

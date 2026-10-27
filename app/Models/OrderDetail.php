@@ -8,26 +8,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class OrderDetail extends Model
 {
     protected $table = 'order_details';
-    protected $primaryKey = 'order_detail_id';
 
     protected $fillable = [
-        'order_id', 'service_type_id',
-        'price_per_kg', 'weight_kg', 'express_fee',
+        'laundry_order_id', 'service_type_id', 'weight', 'subtotal',
     ];
 
     protected $casts = [
-        'price_per_kg' => 'decimal:2',
-        'weight_kg'    => 'decimal:2',
-        'express_fee'  => 'decimal:2',
+        'weight' => 'decimal:2',
+        'subtotal' => 'decimal:2',
     ];
 
     public function order(): BelongsTo
     {
-        return $this->belongsTo(LaundryOrder::class, 'order_id', 'order_id');
+        return $this->belongsTo(LaundryOrder::class, 'laundry_order_id', 'id');
     }
 
     public function serviceType(): BelongsTo
     {
-        return $this->belongsTo(ServiceType::class, 'service_type_id', 'service_type_id');
+        return $this->belongsTo(ServiceType::class, 'service_type_id', 'id');
     }
 }

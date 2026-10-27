@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\ServiceType;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,5 +19,15 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        ServiceType::firstOrCreate(
+            ['name' => 'Wash & Fold'],
+            ['price_per_kg' => 50.00],
+        );
+
+        ServiceType::firstOrCreate(
+            ['name' => 'Dry Clean'],
+            ['price_per_kg' => 120.00],
+        );
     }
 }

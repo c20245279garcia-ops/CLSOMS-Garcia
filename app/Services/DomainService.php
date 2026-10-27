@@ -9,6 +9,7 @@ use App\Models\Delivery;
 use App\Models\ServiceType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class DomainService
 {
@@ -125,9 +126,21 @@ class DomainService
     public function createDelivery(array $data): Delivery
     {
         return DB::transaction(function () use ($data) {
-            return Delivery::create([
-                'order_id'      => $data['order_id'],
-                'delivery_date' => $data['delivery_date'],
+            $order = LaundryOrder::findOrFail($data['laundry_order_id']);
+            if (empty($data['delivery_date']) && !$order->pickup_date) {
+                throw ValidationException::withMessages([
+                    'laundry_order_id' => 'The order needs a pickup date before a delivery can be scheduled.',
+                ]);
+            }
+
+            $deliveryDate = $data['delivery_date'] ?? $this->calculateDeliveryDate(
+                $order->pickup_date->toDateString(),
+                $order->express_service
+            );
+
+            return $order->delivery()->create([
+                'delivery_date' => $deliveryDate,
+                'delivery_status' => 'unassigned',
             ]);
         });
     }

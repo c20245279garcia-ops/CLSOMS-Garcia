@@ -10,30 +10,46 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class LaundryOrder extends Model
 {
     protected $table = 'laundry_orders';
-    protected $primaryKey = 'order_id';
 
     protected $fillable = [
-        'customer_id', 'pickup_date', 'laundry_status',
-        'grand_total', 'payment_status',
+        'customer_id',
+        'status',
+        'pickup_date',
+        'express_service',
+        'express_fee',
+        'total_amount',
     ];
 
     protected $casts = [
-        'pickup_date'   => 'date',
-        'grand_total'   => 'decimal:2',
+        'pickup_date' => 'date',
+        'express_service' => 'boolean',
+        'express_fee' => 'decimal:2',
+        'total_amount' => 'decimal:2',
     ];
+
+    protected $appends = ['grand_total'];
+
+    public function getGrandTotalAttribute(): ?string
+    {
+        if (!isset($this->attributes['total_amount'])) {
+            return null;
+        }
+
+        return number_format((float) $this->attributes['total_amount'], 2, '.', '');
+    }
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
+        return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }
 
     public function orderDetails(): HasMany
     {
-        return $this->hasMany(OrderDetail::class, 'order_id', 'order_id');
+        return $this->hasMany(OrderDetail::class, 'laundry_order_id', 'id');
     }
 
     public function delivery(): HasOne
     {
-        return $this->hasOne(Delivery::class, 'order_id', 'order_id');
+        return $this->hasOne(Delivery::class, 'laundry_order_id', 'id');
     }
 }
