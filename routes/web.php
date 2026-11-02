@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\LaundryOrderController;
 
-Route::get('/create-order', [LaundryOrderController::class, 'create']);
+// Added the ->name() here
+Route::get('/create-order', [LaundryOrderController::class, 'create'])->name('orders.create');
 
-// Route to handle the form submission
 Route::post('/orders', [LaundryOrderController::class, 'store'])->name('orders.store');
 Route::get('/orders-list', [LaundryOrderController::class, 'index'])->name('orders.index');
 

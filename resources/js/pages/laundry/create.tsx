@@ -20,13 +20,15 @@ interface CreateProps {
     expressFee: number;
 }
 
+const defaultExpressService: boolean = false;
+
 export default function Create({ serviceTypes, expressFee }: CreateProps) {
     const [submitted, setSubmitted] = useState(false);
     const { data, setData, post, processing, errors, reset } = useForm({
         customer_name: '',
         contact_number: '',
         pickup_date: '',
-        express_service: false,
+        express_service: defaultExpressService,
         items: [{ service_type_id: serviceTypes[0]?.id.toString() ?? '', weight_kg: '' }],
     });
 

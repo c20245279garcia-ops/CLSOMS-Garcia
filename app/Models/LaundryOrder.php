@@ -27,7 +27,7 @@ class LaundryOrder extends Model
         'total_amount' => 'decimal:2',
     ];
 
-    protected $appends = ['grand_total'];
+    protected $appends = ['grand_total', 'grand_total_formatted'];
 
     public function getGrandTotalAttribute(): ?string
     {
@@ -36,6 +36,11 @@ class LaundryOrder extends Model
         }
 
         return number_format((float) $this->attributes['total_amount'], 2, '.', '');
+    }
+
+    public function getGrandTotalFormattedAttribute(): ?string
+    {
+        return $this->grand_total;
     }
 
     public function customer(): BelongsTo

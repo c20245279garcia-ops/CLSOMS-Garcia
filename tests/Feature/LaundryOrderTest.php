@@ -22,7 +22,7 @@ class LaundryOrderTest extends TestCase
         $this->get('/create-order')
             ->assertOk()
             ->assertInertia(fn ($page) => $page
-                ->component('laundry/create')
+                ->component('laundry/Create')
                 ->has('serviceTypes', 1)
                 ->where('serviceTypes.0.name', 'Dry Clean'));
     }
