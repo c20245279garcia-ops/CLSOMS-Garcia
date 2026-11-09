@@ -22,7 +22,7 @@ class StoreLaundryOrderRequest extends FormRequest
 
             'items'                     => ['required', 'array', 'min:1'],
             'items.*.service_type_id'   => ['required', 'exists:service_types,id'],
-            'items.*.weight_kg'         => ['required', 'numeric', 'min:0.1'],
+            'items.*.weight_kg'         => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
         ];
     }
 
@@ -33,6 +33,7 @@ class StoreLaundryOrderRequest extends FormRequest
             'pickup_date.after_or_equal' => 'Pickup date cannot be in the past.',
             'items.required'             => 'At least one service item is required.',
             'items.*.weight_kg.min'      => 'Weight must be greater than 0.',
+            'items.*.weight_kg.max'      => 'That weight is too large to be a valid laundry order.',
         ];
     }
 }

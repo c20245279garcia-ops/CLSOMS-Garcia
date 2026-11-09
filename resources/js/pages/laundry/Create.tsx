@@ -227,6 +227,15 @@ export default function Create({ serviceTypes, expressFee }: CreateProps) {
                                     </div>
                                 </section>
 
+                                {(getNestedError('items') || getNestedError('items.0.weight_kg')) && (
+                                    <Alert variant="destructive">
+                                        <AlertTitle>Invalid order amount</AlertTitle>
+                                        <AlertDescription>
+                                            {getNestedError('items') || getNestedError('items.0.weight_kg')}
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
+
                                 <div className="flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
                                     <Button asChild type="button" variant="outline">
                                         <Link href="/orders-list">Cancel</Link>

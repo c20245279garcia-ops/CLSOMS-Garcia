@@ -8,10 +8,12 @@ use App\Models\ServiceType;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class LaundryOrderService
 {
     public const EXPRESS_SERVICE_FEE = 150.00;
+    private const MAX_ORDER_AMOUNT = 99999999.99;
 
     protected $orderRepository;
 
@@ -31,10 +33,10 @@ class LaundryOrderService
                 ]);
             }
 
-            $customer = Customer::firstOrCreate(
-                ['phone' => $phone],
-                ['name' => trim($validatedData['customer_name']), 'address' => 'N/A']
-            );
+            $customer = Customer::firstOrNew(['phone' => $phone]);
+            $customer->name = Str::title(preg_replace('/\s+/', ' ', trim($validatedData['customer_name'])) ?? '');
+            $customer->address ??= 'N/A';
+            $customer->save();
 
             $expressService = (bool) ($validatedData['express_service'] ?? false);
             $expressFee = $expressService ? self::EXPRESS_SERVICE_FEE : 0;
@@ -44,6 +46,13 @@ class LaundryOrderService
             foreach ($validatedData['items'] as $item) {
                 $service = ServiceType::findOrFail($item['service_type_id']);
                 $lineSubtotal = round((float) $service->price_per_kg * (float) $item['weight_kg'], 2);
+
+                if (!is_finite($lineSubtotal) || $lineSubtotal > self::MAX_ORDER_AMOUNT || $subtotal > self::MAX_ORDER_AMOUNT - $lineSubtotal) {
+                    throw ValidationException::withMessages([
+                        'items' => 'This order amount is too high to be valid. Please enter a realistic laundry weight.',
+                    ]);
+                }
+
                 $subtotal += $lineSubtotal;
 
                 $detailsData[] = [
@@ -54,6 +63,12 @@ class LaundryOrderService
             }
 
             $grandTotal = round($subtotal + $expressFee, 2);
+            if ($grandTotal > self::MAX_ORDER_AMOUNT) {
+                throw ValidationException::withMessages([
+                    'items' => 'This order amount is too high to be valid. Please enter a realistic laundry weight.',
+                ]);
+            }
+
             $order = $this->orderRepository->createOrder([
                 'customer_id' => $customer->id,
                 'status' => 'pending',
